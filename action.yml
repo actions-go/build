@@ -1,0 +1,69 @@
+name: 'Build go action'
+description: |
+  This action allows you to seemlessly build any action written in plain golang.
+  See https://github.com/actions-go/toolkit for more information how to interact with
+  GitHub actions from golang.
+author: 'actions-go'
+inputs:
+  action_path:
+    description: |
+      The path in which the GitHub action is available
+      Usually `github.action_path`
+    type: string
+    required: true
+  action:
+    description: |
+      The name of the github action being run
+      Usually `github.action`
+    type: string
+    required: true
+  go-version:
+    description: |
+      The go version used to compile the action.
+      If not provided it will use the one in the path
+    type: string
+    default: "1.21"
+  # main:
+  #   description: |
+  #     The path within the actions repository having the main file
+  #   type: string
+  #   default: .
+outputs:
+  install-path:
+    description: |
+      The path in which the action has been installed
+    value: ${{ steps.prebuilt.outputs.install-path }}
+runs:
+  using: "composite"
+  steps:
+  - name: "Check whether to use pre-built"
+    id: prebuilt
+    shell: bash
+    run: |
+      out="${{ inputs.action_path }}/${{ inputs.action }}-$(uname -s)-$(uname -m)"
+      echo "install-path=${out}" >> "${GITHUB_OUTPUT}"
+      if [ -x "${out}" ]; then
+        echo "pre-built=true" >> "${GITHUB_OUTPUT}"
+      else
+        if [ -e "${out}" ]; then
+          echo "::error::file ${out} already exists but is not executable. Refusing to continue"
+          exit 1
+        fi
+        echo "pre-built=false" >> "${GITHUB_OUTPUT}"
+      fi
+  - name: "Setup Golang"
+    uses: actions/setup-go@v4
+    if: ${{ steps.prebuilt.outputs.pre-built == 'false' }}
+    with:
+      go-version: ${{ inputs.go-version }}
+      cache-dependency-path: |
+        ${{ inputs.action_path }}/**/go.sum
+        ${{ inputs.action_path }}/**/go.mod
+        ${{ inputs.action_path }}/**/*.go
+  - name: "Build action"
+    if: ${{ steps.prebuilt.outputs.pre-built == 'false' }}
+    id: build
+    shell: bash
+    working-directory: ${{ inputs.action_path }}
+    run: |
+      go build -o "${{ steps.prebuilt.outputs.install-path }}" .
