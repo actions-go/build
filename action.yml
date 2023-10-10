@@ -1,8 +1,10 @@
 name: 'Build go action'
 description: |
-  This action allows you to seemlessly build any action written in plain golang.
-  See https://github.com/actions-go/toolkit for more information how to interact with
-  GitHub actions from golang.
+  Seamlessly build any action written in plain golang.
+  See https://github.com/actions-go/toolkit for more information
+branding:
+  icon: 'battery-charging'
+  color: 'green'
 author: 'actions-go'
 inputs:
   action_path:
@@ -41,6 +43,9 @@ runs:
     shell: bash
     run: |
       out="${{ inputs.action_path }}/${{ inputs.action }}-$(uname -s)-$(uname -m)"
+      if [[ "${{ runner.os }}" == "Windows" ]]; then
+        out="${{ inputs.action_path }}\\${{ inputs.action }}-Windows-$(uname -m).exe"
+      fi
       echo "install-path=${out}" >> "${GITHUB_OUTPUT}"
       if [ -x "${out}" ]; then
         echo "pre-built=true" >> "${GITHUB_OUTPUT}"

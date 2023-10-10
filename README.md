@@ -19,10 +19,11 @@ runs:
         action: ${{ github.action }}
         go-version: "1.21" # defaults to 1.21
     - name: Run my action
+      shell: bash
       run: ${{ steps.build-action.outputs.install-path }}
 ```
 
-The action is built in `${action_path}/${action}-(Darwin|linux)-(x86_64|arm64)`.
+The action is built in `${action_path}/${action}-(Darwin|Linux|Windows)-(x86_64|arm64)`.
 If the build path already exists and is executable, the pre-built action will be used.
 This means that you can create releases with a few committed files:
 `action.yaml`, `${action}-(Darwin|linux)-(x86_64|arm64)` and `Readme.md`
