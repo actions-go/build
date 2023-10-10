@@ -11,7 +11,7 @@ jobs:
       matrix:
         runs-on:
         - ubuntu-latest
-        #- windows-latest # Need to work a bit more to support windows
+        - windows-latest
         - macos-latest
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -22,22 +22,34 @@ jobs:
         action_path: ${{ github.workspace }}
         action: my-action
         go-version: "1.21"
-    - name: "Output path is os and architecture dependant"
+    - name: "Check install path value"
+      shell: python
       run: |
-        [ "${{ steps.build.outputs.install-path }}" == "${{ github.workspace }}/my-action-$(uname -s)-$(uname -m)" ]
+        import platform
+        if platform.system() == "Windows":
+          expected = "{}\\my-action-{}-{}.exe".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
+        else:
+          expected = "{}/my-action-{}-{}".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
+        expected = expected.replace("AMD64", "x86_64")
+        print(expected, "${{ steps.build.outputs.install-path }}")
+        assert ${{ toJSON(steps.build.outputs.install-path) }} == expected
     - name: "output can be run"
       run: |
         ${{ steps.build.outputs.install-path }}
     - name: "output runs as expected"
+      shell: python
       run: |
-        [ $(${{ steps.build.outputs.install-path }}) == "success" ]
+        import subprocess
+        output = subprocess.check_output([${{ toJSON(steps.build.outputs.install-path) }}]).strip()
+        print(output)
+        assert output == b"success"
 
   test-with-pre-build:
     strategy:
       matrix:
         runs-on:
         - ubuntu-latest
-        #- windows-latest # Need to work a bit more to support windows
+        # - windows-latest
         - macos-latest
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -61,5 +73,9 @@ jobs:
       run: |
         ${{ steps.build.outputs.install-path }}
     - name: "output runs as expected"
+      shell: python
       run: |
-        [ $(${{ steps.build.outputs.install-path }}) == "prebuilt" ]
+        import subprocess
+        output = subprocess.check_output(["${{ steps.build.outputs.install-path }}"]).strip()
+        print(output)
+        assert output == b"prebuilt"

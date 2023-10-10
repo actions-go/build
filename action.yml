@@ -41,6 +41,9 @@ runs:
     shell: bash
     run: |
       out="${{ inputs.action_path }}/${{ inputs.action }}-$(uname -s)-$(uname -m)"
+      if [[ "${{ runner.os }}" == "Windows" ]]; then
+        out="${{ inputs.action_path }}\\${{ inputs.action }}-Windows-$(uname -m).exe"
+      fi
       echo "install-path=${out}" >> "${GITHUB_OUTPUT}"
       if [ -x "${out}" ]; then
         echo "pre-built=true" >> "${GITHUB_OUTPUT}"
