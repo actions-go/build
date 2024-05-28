@@ -69,6 +69,5 @@ runs:
     if: ${{ steps.prebuilt.outputs.pre-built == 'false' }}
     id: build
     shell: bash
-    working-directory: ${{ inputs.action_path }}
     run: |
-      go build -o "${{ steps.prebuilt.outputs.install-path }}" .
+      go build -o "${{ steps.prebuilt.outputs.install-path }}" ${{ inputs.action_path }}
