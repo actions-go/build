@@ -45,6 +45,7 @@ runs:
       action_path=$(realpath "${{ inputs.action_path }}" )
       out="${action_path}/${{ inputs.action }}-$(uname -s)-$(uname -m)"
       if [[ "${{ runner.os }}" == "Windows" ]]; then
+        out=$(echo "${out}" | tr '/' '\\')
         out="${action_path}\\${{ inputs.action }}-Windows-$(uname -m).exe"
       fi
       echo "install-path=${out}" >> "${GITHUB_OUTPUT}"

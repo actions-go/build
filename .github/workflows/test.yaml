@@ -65,7 +65,7 @@ jobs:
       run: |
         import platform
         if platform.system() == "Windows":
-          expected = "{}/cmd/action\\my-action-{}-{}.exe".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
+          expected = "{}\\cmd\\action\\my-action-{}-{}.exe".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
         else:
           expected = "{}/cmd/action/my-action-{}-{}".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
         expected = expected.replace("AMD64", "x86_64")
