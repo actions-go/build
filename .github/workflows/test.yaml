@@ -26,13 +26,15 @@ jobs:
       shell: python
       run: |
         import platform
+        import os
         if platform.system() == "Windows":
           expected = "{}\\my-action-{}-{}.exe".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
         else:
           expected = "{}/my-action-{}-{}".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
         expected = expected.replace("AMD64", "x86_64")
-        print(expected, "${{ steps.build.outputs.install-path }}")
-        assert ${{ toJSON(steps.build.outputs.install-path) }} == expected
+        expected=os.path.normpath(expected)
+        got=os.path.normpath("${{ steps.build.outputs.install-path }}")
+        assert got == expected, "install path {} mismatch expected path {}".format(got, expected)
     - name: "output can be run"
       run: |
         ${{ steps.build.outputs.install-path }}
@@ -64,13 +66,15 @@ jobs:
       shell: python
       run: |
         import platform
+        import os
         if platform.system() == "Windows":
           expected = "{}\\cmd\\action\\my-action-{}-{}.exe".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
         else:
           expected = "{}/cmd/action/my-action-{}-{}".format(${{ toJSON(github.workspace) }}, platform.system(), platform.machine())
         expected = expected.replace("AMD64", "x86_64")
-        print(expected, "${{ steps.build.outputs.install-path }}")
-        assert ${{ toJSON(steps.build.outputs.install-path) }} == expected
+        expected=os.path.normpath(expected)
+        got=os.path.normpath("${{ steps.build.outputs.install-path }}")
+        assert got == expected, "install path {} mismatch expected path {}".format(got, expected)
     - name: "output can be run"
       run: |
         ${{ steps.build.outputs.install-path }}
