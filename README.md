@@ -17,7 +17,7 @@ runs:
       with:
         action_path: ${{ github.action_path }} # specifies the working directory for go build (usually the folder of your `go.mod` files).
         action: ${{ github.action }}
-        go-version: "1.21" # defaults to 1.21
+        go-version: "1.22" # defaults to 1.22
         go-main: '.' # defaults to '.'
     - name: Run my action
       shell: bash
