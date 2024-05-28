@@ -15,9 +15,10 @@ runs:
       name: Build go action
       uses: actions-go/build@v1
       with:
-        action_path: ${{ github.action_path }}
+        action_path: ${{ github.action_path }} # specifies the working directory for go build (usually the folder of your `go.mod` files).
         action: ${{ github.action }}
         go-version: "1.21" # defaults to 1.21
+        go-main: '.' # defaults to '.'
     - name: Run my action
       shell: bash
       run: ${{ steps.build-action.outputs.install-path }}
