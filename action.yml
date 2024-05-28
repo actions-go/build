@@ -24,7 +24,7 @@ inputs:
       The go version used to compile the action.
       If not provided it will use the one in the path
     type: string
-    default: "1.21"
+    default: "1.22"
   go-main:
     description: |
       The path within the actions repository having the main file
