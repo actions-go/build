@@ -25,11 +25,11 @@ inputs:
       If not provided it will use the one in the path
     type: string
     default: "1.21"
-  # main:
-  #   description: |
-  #     The path within the actions repository having the main file
-  #   type: string
-  #   default: .
+  go-main:
+    description: |
+      The path within the actions repository having the main file
+    type: string
+    default: .
 outputs:
   install-path:
     description: |
@@ -42,9 +42,10 @@ runs:
     id: prebuilt
     shell: bash
     run: |
-      out="${{ inputs.action_path }}/${{ inputs.action }}-$(uname -s)-$(uname -m)"
+      action_path=$(realpath "${{ inputs.action_path }}" )
+      out="${action_path}/${{ inputs.action }}-$(uname -s)-$(uname -m)"
       if [[ "${{ runner.os }}" == "Windows" ]]; then
-        out="${{ inputs.action_path }}\\${{ inputs.action }}-Windows-$(uname -m).exe"
+        out="${action_path}\\${{ inputs.action }}-Windows-$(uname -m).exe"
       fi
       echo "install-path=${out}" >> "${GITHUB_OUTPUT}"
       if [ -x "${out}" ]; then
@@ -69,5 +70,6 @@ runs:
     if: ${{ steps.prebuilt.outputs.pre-built == 'false' }}
     id: build
     shell: bash
+    working-directory: ${{ inputs.action_path }}
     run: |
-      go build -o "${{ steps.prebuilt.outputs.install-path }}" ${{ inputs.action_path }}
+      go build -o "${{ steps.prebuilt.outputs.install-path }}" "${{ inputs.go-main }}"
